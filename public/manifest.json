@@ -1,0 +1,42 @@
+{
+  "background_color": "#F4F4F4",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "FitBuddy",
+  "orientation": "portrait",
+  "scope": "/",
+  "short_name": "FitBuddy",
+  "start_url": "/index.html",
+  "theme_color": "#FF650F",
+  "icons": [
+    {
+      "src": "/public/icons/192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/public/icons/512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "description": "Um aplicativo focado em ajudar os usuários a manterem-se ativos, fornecendo recursos para planejar, monitorar suas atividades físicas e indicar onde pode-se realizar atividades físicas.",
+  "id": "fitbuddy",
+  "lang": "pt",
+  "display_override": [
+    "standalone",
+    "fullscreen",
+    "minimal-ui",
+    "browser",
+    "window-controls-overlay"
+  ],
+  "categories": [
+    "fitness",
+    "health",
+    "lifestyle",
+    "utilities"
+  ],
+  "prefer_related_applications": true
+}
