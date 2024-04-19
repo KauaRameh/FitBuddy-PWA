@@ -10,6 +10,17 @@
         <meta name="description" content="Um aplicativo focado em ajudar os usuários a manterem-se ativos, fornecendo recursos para planejar, monitorar suas atividades físicas e indicar onde pode-se realizar atividades físicas." />
         <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />   
         <link rel="manifest" href="/public/manifest.json" />
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+        <script type="module" src="/src/js/scripts.js"></script>
+        
+        <style>
+            #map {
+                height: 100vh;
+                width: 100%;
+            }
+        </style>
+
+
 
         <style>
             @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -80,81 +91,14 @@
                     <br>
                 </div>
             </div>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
             <section class="mt-4 " id="">
                 <div class="px-4 pt-4 border-top border-black rounded-top-5" style="background-color: #F4F4F4;">
 
                     <h2 class="m-0" style=" font-weight: 600;">Academias</h2>
                     <p class="m-0 mt-2" style="font-size: smaller; font-weight: 500; color: #8F8F8F;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed felis magna, facilisis dignissim lacus at. </p>
-
-                    <div class="border border-black rounded-4 px-2 mt-3" style="background-color: white;">
-                        <div class="row">
-                            <div class="col-4 py-2">
-                                <div class="bg-light border border-black rounded-4">
-                                    <div>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col py-2 d-flex align-items-center ">
-                                <div>
-                                    <h6 class="m-0" style="font-weight: 600;">Academia 1</h6>
-                                    <p class="m-0 mt-1" style="font-size: small; font-weight: 600; color: #8F8F8F;">Avenida das dores, 191</p>
-                                    <p class="m-0" style="font-size: small; font-weight: 600; color: #8F8F8F;">Aberta - 2.4km</p>
-                                    <h6 class="m-0 mt-1" style="font-weight: 500; color: #0F82FF;">Ver detalhes</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="border border-black rounded-4 px-2 mt-3" style="background-color: white;">
-                        <div class="row">
-                            <div class="col-4 py-2">
-                                <div class="bg-light border border-black rounded-4">
-                                    <div>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col py-2 d-flex align-items-center ">
-                                <div>
-                                    <h6 class="m-0" style="font-weight: 600;">Academia 2</h6>
-                                    <p class="m-0 mt-1" style="font-size: small; font-weight: 600; color: #8F8F8F;">Endereço academia, 222</p>
-                                    <p class="m-0" style="font-size: small; font-weight: 600; color: #8F8F8F;">Aberta - 2.9km</p>
-                                    <h6 class="m-0 mt-1" style="font-weight: 500; color: #0F82FF;">Ver detalhes</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="border border-black rounded-4 px-2 mt-3" style="background-color: white;">
-                        <div class="row">
-                            <div class="col-4 py-2">
-                                <div class="bg-light border border-black rounded-4">
-                                    <div>
-                                        <br>
-                                        <br>
-                                        <br>
-                                        <br>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col py-2 d-flex align-items-center ">
-                                <div>
-                                    <h6 class="m-0" style="font-weight: 600;">Academia 3</h6>
-                                    <p class="m-0 mt-1" style="font-size: small; font-weight: 600; color: #8F8F8F;">Endereço academia, 333</p>
-                                    <p class="m-0" style="font-size: small; font-weight: 600; color: #8F8F8F;">Aberta - 3.5km</p>
-                                    <h6 class="m-0 mt-1" style="font-weight: 500; color: #0F82FF;">Ver detalhes</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="academias"></div>
 
                     <div class="text-center text-white">
                         <div class="mt-4">.</div>
@@ -169,6 +113,126 @@
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <script src="/src/js/scripts.js"></script>
+
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script>
+            var userIcon = L.icon({
+                iconUrl: '/public/icons/pin.png', 
+                iconSize: [50, 50], 
+                iconAnchor: [22, 94], 
+                popupAnchor: [-3, -76] 
+            });
+            
+            var map = L.map('map');
+
+            navigator.geolocation.getCurrentPosition(function(location) {
+            var latlng = new L.LatLng(location.coords.latitude, location.coords.longitude);
+
+            map.setView(latlng, 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+            }).addTo(map);
+            });
+
+            // Adiciona um marcador para a localização do usuário
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var userLat = position.coords.latitude;
+                var userLng = position.coords.longitude;
+                L.marker([userLat, userLng],{icon: userIcon}).addTo(map)
+                    .bindPopup('Sua Localização Atual')
+                    .openPopup();
+            });
+
+            //latitude e longitude do usuário
+            var userLat, userLng;
+
+            navigator.geolocation.getCurrentPosition(function (position) {
+                userLat = position.coords.latitude;
+                userLng = position.coords.longitude;
+            });
+
+            // Função para calcular a distância entre dois pontos
+            function getDistance(lat1, lon1, lat2, lon2) {
+                var R = 6371; // Raio da terra em KM
+                var dLat = deg2rad(lat2-lat1);
+                var dLon = deg2rad(lon2-lon1); 
+                var a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2)
+                ; 
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                var d = R * c; // Distância em KM
+                return d;
+            }
+
+            function deg2rad(deg) {
+                return deg * (Math.PI/180)
+            }
+
+            // Busca os dados da API
+            fetch('http://dados.recife.pe.gov.br/pt_BR/api/3/action/datastore_search?resource_id=874379d1-470f-40bb-a469-fe0228c62d09&limit=43')
+            .then(response => response.json())
+            .then(data => {
+                // Agora, 'data' contém os dados da API em formato JSON
+
+                // Adiciona uma propriedade de distância a cada ponto
+                data.result.records.forEach(function(point) {
+                    point.distance = getDistance(userLat, userLng, point.latitude, point.longitude);
+                });
+
+                // Ordena os pontos por distância
+                data.result.records.sort(function(a, b) {
+                    return a.distance - b.distance;
+                });
+                
+                // Selecione as 10 academias mais próximas
+                var nearestAcademies = data.result.records.slice(0, 10);
+
+                // Adicione as academias à seção de academias
+                nearestAcademies.forEach(function(academy) {
+                    var academyElement = document.createElement('div');
+                    academyElement.innerHTML = `
+                        <div class="border border-black rounded-4 px-2 mt-3" style="background-color: white;">
+                            <div class="row">
+                                <div class="col-4 py-2">
+                                    <div class="bg-light border border-black rounded-4">
+                                        <div>
+                                            <br>
+                                            <br>
+                                            <br>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col py-2 d-flex align-items-center ">
+                                    <div>
+                                        <h6 class="m-0" style="font-weight: 600;">${academy.nome_oficial}</h6>
+                                        <p class="m-0 mt-1" style="font-size: small; font-weight: 600; color: #8F8F8F;">${academy.endereço}</p>
+                                        <p class="m-0" style="font-size: small; font-weight: 600; color: #8F8F8F;">Aberta - ${academy.distance.toFixed(2)}km</p>
+                                        <h6 class="m-0 mt-1" style="font-weight: 500; color: #0F82FF;">Ver detalhes</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.querySelector('#academias').appendChild(academyElement);
+                });
+                data.result.records.forEach(function(academy) {
+                    var latLng = [academy.latitude, academy.longitude];
+                    L.marker(latLng).addTo(map).bindPopup(academy.nome_oficial).openPopup();
+                    
+                });
+
+
+            })
+            .catch(error => console.error('Erro:', error));
+
+            
+
+        </script>
+
+    
         
     </body>
 </html>
