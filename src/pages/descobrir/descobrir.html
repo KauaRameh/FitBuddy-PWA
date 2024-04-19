@@ -220,7 +220,7 @@
                 });
                 data.result.records.forEach(function(academy) {
                     var latLng = [academy.latitude, academy.longitude];
-                    L.marker(latLng).addTo(map).bindPopup(academy.nome_oficial).openPopup();
+                    L.marker(latLng).addTo(map).bindPopup(academy.nome_oficial);
                     
                 });
 
