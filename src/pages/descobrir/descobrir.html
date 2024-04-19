@@ -119,8 +119,8 @@
             var userIcon = L.icon({
                 iconUrl: '/public/icons/pin.png', 
                 iconSize: [50, 50], 
-                iconAnchor: [22, 94], 
-                popupAnchor: [-3, -76] 
+                iconAnchor: [20, 60], 
+                popupAnchor: [-1, -45] 
             });
             
             var map = L.map('map');
@@ -134,22 +134,22 @@
             }).addTo(map);
             });
 
-            // Adiciona um marcador para a localização do usuário
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var userLat = position.coords.latitude;
-                var userLng = position.coords.longitude;
-                L.marker([userLat, userLng],{icon: userIcon}).addTo(map)
-                    .bindPopup('Sua Localização Atual')
-                    .openPopup();
-            });
-
             //latitude e longitude do usuário
             var userLat, userLng;
 
             navigator.geolocation.getCurrentPosition(function (position) {
                 userLat = position.coords.latitude;
                 userLng = position.coords.longitude;
+
+                // Adiciona um marcador para a localização do usuário
+                L.marker([userLat, userLng],{icon: userIcon}).addTo(map)
+                    .bindPopup('Sua Localização Atual')
+                    .openPopup();
             });
+
+            function deg2rad(deg) {
+                return deg * (Math.PI/180);
+            }
 
             // Função para calcular a distância entre dois pontos
             function getDistance(lat1, lon1, lat2, lon2) {
@@ -166,28 +166,25 @@
                 return d;
             }
 
-            function deg2rad(deg) {
-                return deg * (Math.PI/180)
-            }
-
             // Busca os dados da API
-            fetch('http://dados.recife.pe.gov.br/pt_BR/api/3/action/datastore_search?resource_id=874379d1-470f-40bb-a469-fe0228c62d09&limit=43')
+            fetch('/src/pages/descobrir/academias.json')
             .then(response => response.json())
             .then(data => {
+                console.log(data);
                 // Agora, 'data' contém os dados da API em formato JSON
 
                 // Adiciona uma propriedade de distância a cada ponto
-                data.result.records.forEach(function(point) {
-                    point.distance = getDistance(userLat, userLng, point.latitude, point.longitude);
+                data.records.forEach(function(point) {
+                    point.distance = getDistance(userLat, userLng, point[16], point[17]);
                 });
 
                 // Ordena os pontos por distância
-                data.result.records.sort(function(a, b) {
+                data.records.sort(function(a, b) {
                     return a.distance - b.distance;
                 });
                 
                 // Selecione as 10 academias mais próximas
-                var nearestAcademies = data.result.records.slice(0, 10);
+                var nearestAcademies = data.records.slice(0, 10);
 
                 // Adicione as academias à seção de academias
                 nearestAcademies.forEach(function(academy) {
@@ -207,8 +204,8 @@
                                 </div>
                                 <div class="col py-2 d-flex align-items-center ">
                                     <div>
-                                        <h6 class="m-0" style="font-weight: 600;">${academy.nome_oficial}</h6>
-                                        <p class="m-0 mt-1" style="font-size: small; font-weight: 600; color: #8F8F8F;">${academy.endereço}</p>
+                                        <h6 class="m-0" style="font-weight: 600;">${academy[1]}</h6>
+                                        <p class="m-0 mt-1" style="font-size: small; font-weight: 600; color: #8F8F8F;">${academy[8]}</p>
                                         <p class="m-0" style="font-size: small; font-weight: 600; color: #8F8F8F;">Aberta - ${academy.distance.toFixed(2)}km</p>
                                         <h6 class="m-0 mt-1" style="font-weight: 500; color: #0F82FF;">Ver detalhes</h6>
                                     </div>
@@ -218,9 +215,11 @@
                     `;
                     document.querySelector('#academias').appendChild(academyElement);
                 });
-                data.result.records.forEach(function(academy) {
-                    var latLng = [academy.latitude, academy.longitude];
-                    L.marker(latLng).addTo(map).bindPopup(academy.nome_oficial);
+
+                // [16] e [17] são latitude e longitude respectivamente e [1] é o nome_oficial 
+                data.records.forEach(function(academy) {
+                    var latLng = [academy[16], academy[17]];
+                    L.marker(latLng).addTo(map).bindPopup(academy[1]);
                     
                 });
 
